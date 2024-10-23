@@ -98,13 +98,63 @@ class War {
 		return battleResult;
 	}
 
-	showStatus() {}
+	// this makes vikingAttack() and saxonAttack() obsolete
+	// they are kept so the tests wouldn't break
+	attackBy(attacker) {
+		let attackerArmy = this.vikingArmy;
+		let defenderArmy = this.saxonArmy;
+
+		switch (attacker) {
+			case 'viking':
+				attackerArmy = this.vikingArmy;
+				defenderArmy = this.saxonArmy;
+				break;
+
+			case 'saxon':
+				attackerArmy = this.saxonArmy;
+				defenderArmy = this.vikingArmy;
+				break;
+
+			// default values handled during initialisation
+		}
+
+		const randomAttackerIndex = this.#randomSoldierIndexFrom(attackerArmy);
+		const randomDefenderIndex = this.#randomSoldierIndexFrom(defenderArmy);
+
+		const randomAttacker = attackerArmy[randomAttackerIndex];
+		const randomDefender = defenderArmy[randomDefenderIndex];
+
+		const battleResult = randomDefender.receiveDamage(randomAttacker.strength);
+
+		if (randomDefender.health <= 0) defenderArmy.splice(randomDefenderIndex, 1);
+
+		console.table(attackerArmy);
+		console.table(defenderArmy);
+
+		return battleResult;
+	}
+
+	showStatus() {
+		let statusText = '';
+
+		if (this.vikingArmy.length && this.saxonArmy.length) {
+			statusText = 'Vikings and Saxons are still in the thick of battle.';
+		} else if (!this.saxonArmy.length) {
+			statusText = 'Vikings have won the war of the century!';
+		} else if (!this.vikingArmy.length) {
+			statusText =
+				'Saxons have fought for their lives and survived another day...';
+		}
+
+		return statusText;
+	}
 
 	#randomSoldierIndexFrom(army) {
 		return Math.floor(Math.random() * army.length);
 	}
 }
 
+// TEST & DEBUGGING
 const ragnar = new Viking('Ragnar', 100, 20);
 const saxon = new Saxon(30, 10);
 const bigSaxon = new Saxon(40, 15);
@@ -118,9 +168,18 @@ console.table(war.saxonArmy);
 console.table(war.vikingArmy);
 
 console.log('1st attack');
-// war.vikingAttack();
-war.saxonAttack();
+console.log(war.attackBy('viking'));
 
 console.log('2nd attack');
-// war.vikingAttack();
-war.saxonAttack();
+console.log(war.attackBy('saxon'));
+
+console.log('3rd attack');
+console.log(war.attackBy('viking'));
+
+console.log('3rd attack');
+console.log(war.attackBy('viking'));
+console.log(war.showStatus());
+
+console.log('4th attack');
+console.log(war.attackBy('viking'));
+console.log(war.showStatus());
